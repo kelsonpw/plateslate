@@ -13,13 +13,13 @@ defmodule PlateslateWeb.Router do
     plug(:accepts, ["json"])
   end
 
-  scope "/", PlateslateWeb do
-    pipe_through(:browser)
+  scope "/" do
+    pipe_through :api
 
-    get("/", PageController, :index)
-  end
+    forward "/api", Absinthe.Plug, schema: PlateslateWeb.Schema
 
-  scope "/api", PlateslateWeb do
-    pipe_through(:api)
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: PlateslateWeb.Schema,
+      interface: :simple
   end
 end
