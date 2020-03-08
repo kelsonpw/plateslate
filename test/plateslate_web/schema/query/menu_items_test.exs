@@ -95,7 +95,13 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
         |> get("/api", query: @search_menu_items_query, variables: variables)
 
       assert(%{"errors" => [%{"message" => message}]} = json_response(conn, 200))
-      assert(message == "Argument \"filter\" has invalid value {name: $term}.\nIn field \"name\": Expected type \"String\", found $term.")
+
+      expected_message = """
+      Argument "filter" has invalid value {name: $term}.
+      In field "name": Expected type "String", found $term.\
+      """
+
+      assert(message == expected_message)
     end
   end
 
@@ -190,6 +196,86 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
           "data" => %{
             "menuItems" => [
               %{"name" => "Vada Pav"}
+            ]
+          }
+        } == json_response(conn, 200)
+      )
+    end
+
+    test "menuItems filtered by custom scalar type error" do
+      query = """
+      query($filter: MenuItemFilter!) {
+        menuItems(filter: $filter) {
+          name
+        }
+      }
+      """
+
+      variables = %{filter: %{"addedBefore" => "not-a-date"}}
+      sides = Plateslate.Repo.get_by!(Plateslate.Menu.Category, name: "Sides")
+
+      %Plateslate.Menu.Item{
+        name: "Garlic Fries",
+        added_on: ~D[2017-01-01],
+        price: 2.50,
+        category: sides
+      }
+      |> Plateslate.Repo.insert!()
+
+      conn =
+        build_conn()
+        |> get("/api", query: query, variables: variables)
+
+      assert(
+        %{
+          "errors" => [
+            %{
+              "locations" => [
+                %{"column" => 0, "line" => 2}
+              ],
+              "message" => message
+            }
+          ]
+        } = json_response(conn, 200)
+      )
+
+      expected_message = """
+      Argument "filter" has invalid value $filter.
+      In field "addedBefore": Expected type "Date", found "not-a-date".\
+      """
+
+      assert(message == expected_message)
+    end
+
+    test "menuItems filtered by custom scalar type" do
+      query = """
+      query($filter: MenuItemFilter!) {
+        menuItems(filter: $filter) {
+          name
+        }
+      }
+      """
+
+      variables = %{filter: %{"addedBefore" => "2017-01-02"}}
+      sides = Plateslate.Repo.get_by!(Plateslate.Menu.Category, name: "Sides")
+
+      %Plateslate.Menu.Item{
+        name: "Garlic Fries",
+        added_on: ~D[2017-01-01],
+        price: 2.50,
+        category: sides
+      }
+      |> Plateslate.Repo.insert!()
+
+      conn =
+        build_conn()
+        |> get("/api", query: query, variables: variables)
+
+      assert(
+        %{
+          "data" => %{
+            "menuItems" => [
+              %{"name" => "Garlic Fries"}
             ]
           }
         } == json_response(conn, 200)

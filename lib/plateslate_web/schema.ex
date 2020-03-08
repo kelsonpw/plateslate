@@ -1,6 +1,5 @@
 defmodule PlateslateWeb.Schema do
   use Absinthe.Schema
-  alias Plateslate.{Menu, Repo}
   alias PlateslateWeb.Resolvers
 
   query do
@@ -17,6 +16,19 @@ defmodule PlateslateWeb.Schema do
     value(:desc)
   end
 
+  scalar :date do
+    parse(fn input ->
+      with %Absinthe.Blueprint.Input.String{value: value} <- input,
+           {:ok, date} <- Date.from_iso8601(value) do
+        {:ok, date}
+      else
+        _ -> :error
+      end
+    end)
+
+    serialize(&Date.to_iso8601(&1))
+  end
+
   @desc "A single available MenuItem"
   object :menu_item do
     @desc "The MenuItem's ID"
@@ -28,7 +40,7 @@ defmodule PlateslateWeb.Schema do
     @desc "The MenuItem's price"
     field :price, :float
     @desc "The MenuItem's added_on date"
-    field :added_on, :string
+    field :added_on, :date
   end
 
   @desc "Filtering options for the menu item list"
@@ -47,5 +59,11 @@ defmodule PlateslateWeb.Schema do
 
     @desc "Price below a value"
     field :priced_below, :float
+
+    @desc "Added to the menu before this date"
+    field :added_before, :date
+
+    @desc "Added to the menu after this date"
+    field :added_after, :date
   end
 end
