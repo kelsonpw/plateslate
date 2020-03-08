@@ -4,6 +4,7 @@ defmodule PlateslateWeb.Schema.CategoryTypes do
 
   @desc "A single category"
   object :category do
+    interfaces([:search_result])
     @desc "The MenuItem's ID"
     field :id, :id
     @desc "The MenuItem's name"

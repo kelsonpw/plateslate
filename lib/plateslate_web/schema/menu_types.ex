@@ -3,6 +3,7 @@ defmodule PlateslateWeb.Schema.MenuTypes do
 
   @desc "A single available MenuItem"
   object :menu_item do
+    interfaces([:search_result])
     @desc "The MenuItem's ID"
     field :id, :id
     @desc "The MenuItem's name"
@@ -39,8 +40,8 @@ defmodule PlateslateWeb.Schema.MenuTypes do
     field :added_after, :date
   end
 
-  union :search_result do
-    types([:menu_item, :category])
+  interface :search_result do
+    field :name, :string
 
     resolve_type(fn
       %Plateslate.Menu.Item{}, _ -> :menu_item
