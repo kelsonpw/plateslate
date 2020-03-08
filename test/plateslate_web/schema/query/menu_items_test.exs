@@ -6,16 +6,9 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
   end
 
   test "menuItems field returns menu items" do
-    query = """
-    {
-      menuItems {
-        name
-      }
-    }
-    """
-
-    conn = build_conn()
-    conn = get(conn, "/api", query: query)
+    conn =
+      build_conn()
+      |> get("/api", query: menu_items_query())
 
     expected_response = %{
       "data" => %{
@@ -42,16 +35,9 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
   end
 
   test "menuItems field returns menu items filtered by name" do
-    query = """
-    {
-      menuItems(matching: "Vada Pav") {
-        name
-      }
-    }
-    """
-
-    conn = build_conn()
-    conn = get(conn, "/api", query: query)
+    conn =
+      build_conn()
+      |> get("/api", query: menu_items_query(%{matching: "\"Pav\""}))
 
     expected_response = %{
       "data" => %{
@@ -62,5 +48,48 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
     }
 
     assert(json_response(conn, 200) == expected_response)
+  end
+
+  test "menuItems field returns empty menu items if filter name does not match" do
+    conn =
+      build_conn()
+      |> get("/api", query: menu_items_query(%{matching: "\"ZZZxxx\""}))
+
+    expected_response = %{
+      "data" => %{
+        "menuItems" => []
+      }
+    }
+
+    assert(json_response(conn, 200) == expected_response)
+  end
+
+  test "menuItems field returns errors when using invalid search value" do
+    conn =
+      build_conn()
+      |> get("/api", query: menu_items_query(%{matching: 123}))
+
+    assert(%{"errors" => [%{"message" => message}]} = json_response(conn, 200))
+    assert(message == "Argument \"matching\" has invalid value 123.")
+  end
+
+  defp menu_items_query do
+    """
+    {
+      menuItems {
+        name
+      }
+    }
+    """
+  end
+
+  defp menu_items_query(%{matching: name}) do
+    """
+    {
+      menuItems(matching: #{name}) {
+        name
+      }
+    }
+    """
   end
 end
