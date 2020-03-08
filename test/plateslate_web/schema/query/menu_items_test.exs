@@ -5,17 +5,17 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
     Plateslate.Seeds.run()
   end
 
-  @query """
-  {
-    menuItems {
-      name
-    }
-  }
-  """
-
   test "menuItems field returns menu items" do
+    query = """
+    {
+      menuItems {
+        name
+      }
+    }
+    """
+
     conn = build_conn()
-    conn = get(conn, "/api", query: @query)
+    conn = get(conn, "/api", query: query)
 
     expected_response = %{
       "data" => %{
@@ -34,6 +34,29 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
           %{"name" => "Masala Chai"},
           %{"name" => "Vanilla Milkshake"},
           %{"name" => "Chocolate Milkshake"}
+        ]
+      }
+    }
+
+    assert(json_response(conn, 200) == expected_response)
+  end
+
+  test "menuItems field returns menu items filtered by name" do
+    query = """
+    {
+      menuItems(matching: "Vada Pav") {
+        name
+      }
+    }
+    """
+
+    conn = build_conn()
+    conn = get(conn, "/api", query: query)
+
+    expected_response = %{
+      "data" => %{
+        "menuItems" => [
+          %{"name" => "Vada Pav"}
         ]
       }
     }

@@ -67,8 +67,18 @@ defmodule Plateslate.MenuTest do
   describe "items" do
     alias Plateslate.Menu.Item
 
-    @valid_attrs %{added_on: ~D[2010-04-17], description: "some description", name: "some name", price: "120.5"}
-    @update_attrs %{added_on: ~D[2011-05-18], description: "some updated description", name: "some updated name", price: "456.7"}
+    @valid_attrs %{
+      added_on: ~D[2010-04-17],
+      description: "some description",
+      name: "some name",
+      price: "120.5"
+    }
+    @update_attrs %{
+      added_on: ~D[2011-05-18],
+      description: "some updated description",
+      name: "some updated name",
+      price: "456.7"
+    }
     @invalid_attrs %{added_on: nil, description: nil, name: nil, price: nil}
 
     def item_fixture(attrs \\ %{}) do
@@ -80,9 +90,15 @@ defmodule Plateslate.MenuTest do
       item
     end
 
-    test "list_items/0 returns all items" do
+    test "list_items/1 returns all items" do
       item = item_fixture()
-      assert Menu.list_items() == [item]
+      assert Menu.list_items(%{}) == [item]
+    end
+
+    test "list_items/1 filters by name" do
+      item = item_fixture()
+      assert Menu.list_items(%{matching: "some name"}) == [item]
+      assert Menu.list_items(%{matching: "some other name"}) == []
     end
 
     test "get_item!/1 returns the item with given id" do
