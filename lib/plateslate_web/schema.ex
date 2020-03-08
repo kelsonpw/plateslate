@@ -1,6 +1,10 @@
 defmodule PlateslateWeb.Schema do
   use Absinthe.Schema
   alias PlateslateWeb.Resolvers
+  alias __MODULE__.{MenuTypes, CategoryTypes}
+
+  import_types(MenuTypes)
+  import_types(CategoryTypes)
 
   query do
     @desc "The list of available Menu Items!"
@@ -8,6 +12,17 @@ defmodule PlateslateWeb.Schema do
       arg(:filter, :menu_item_filter)
       arg(:order, type: :sort_order, default_value: :asc)
       resolve(&Resolvers.Menu.menu_items/3)
+    end
+
+    field :categories, list_of(:category) do
+      arg(:filter, :category_filter)
+      arg(:order, type: :sort_order, default_value: :asc)
+      resolve(&Resolvers.Menu.categories/3)
+    end
+
+    field :search, list_of(:search_result) do
+      arg(:matching, non_null(:string))
+      resolve(&Resolvers.Menu.search/3)
     end
   end
 
@@ -27,43 +42,5 @@ defmodule PlateslateWeb.Schema do
     end)
 
     serialize(&Date.to_iso8601(&1))
-  end
-
-  @desc "A single available MenuItem"
-  object :menu_item do
-    @desc "The MenuItem's ID"
-    field :id, :id
-    @desc "The MenuItem's name"
-    field :name, :string
-    @desc "The MenuItem's optional description"
-    field :description, :string
-    @desc "The MenuItem's price"
-    field :price, :float
-    @desc "The MenuItem's added_on date"
-    field :added_on, :date
-  end
-
-  @desc "Filtering options for the menu item list"
-  input_object :menu_item_filter do
-    @desc "Matching a name"
-    field :name, :string
-
-    @desc "Matching a category name"
-    field :category, :string
-
-    @desc "Matching a tag"
-    field :tag, :string
-
-    @desc "Price above a value"
-    field :priced_above, :float
-
-    @desc "Price below a value"
-    field :priced_below, :float
-
-    @desc "Added to the menu before this date"
-    field :added_before, :date
-
-    @desc "Added to the menu after this date"
-    field :added_after, :date
   end
 end

@@ -19,9 +19,9 @@ defmodule Plateslate.MenuTest do
       category
     end
 
-    test "list_categories/0 returns all categories" do
+    test "list_categories/1 returns all categories" do
       category = category_fixture()
-      assert Menu.list_categories() == [category]
+      assert Menu.list_categories(%{}) == [category]
     end
 
     test "get_category!/1 returns the category with given id" do

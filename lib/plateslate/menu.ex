@@ -17,8 +17,26 @@ defmodule Plateslate.Menu do
       [%Category{}, ...]
 
   """
-  def list_categories do
-    Repo.all(Category)
+
+  def list_categories(%{matching: name}) when is_binary(name) do
+    Category
+    |> where([m], ilike(m.name, ^"%#{name}"))
+    |> Repo.all()
+  end
+
+  def list_categories(filters) do
+    filters
+    |> Enum.reduce(Category, fn
+      {_, nil}, query ->
+        query
+
+      {:order, order}, query ->
+        from q in query, order_by: {^order, :name}
+
+      {:filter, filter}, query ->
+        query |> filter_with(filter)
+    end)
+    |> Repo.all()
   end
 
   @doc """
@@ -104,6 +122,18 @@ defmodule Plateslate.Menu do
 
   alias Plateslate.Menu.Item
 
+  @search [Item, Category]
+  def search(term) do
+    pattern = "%#{term}%"
+    Enum.flat_map(@search, &search_ecto(&1, pattern))
+  end
+
+  def search_ecto(ecto_schema, pattern) do
+    Repo.all(
+      from q in ecto_schema, where: ilike(q.name, ^pattern) or ilike(q.description, ^pattern)
+    )
+  end
+
   @doc """
   Returns the list of items.
 
@@ -113,6 +143,7 @@ defmodule Plateslate.Menu do
       [%Item{}, ...]
 
   """
+
   def list_items(%{matching: name}) when is_binary(name) do
     Item
     |> where([m], ilike(m.name, ^"%#{name}"))
