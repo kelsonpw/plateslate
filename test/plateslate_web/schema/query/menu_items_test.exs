@@ -44,10 +44,10 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
     end
   end
 
-  describe "search_menu_items_query" do
+  describe "filter_menu_items_query" do
     @search_menu_items_query """
     query ($term: String) {
-      menuItems(matching: $term) {
+      menuItems(filter: { name: $term }) {
         name
       }
     }
@@ -95,7 +95,7 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
         |> get("/api", query: @search_menu_items_query, variables: variables)
 
       assert(%{"errors" => [%{"message" => message}]} = json_response(conn, 200))
-      assert(message == "Argument \"matching\" has invalid value $term.")
+      assert(message == "Argument \"filter\" has invalid value {name: $term}.\nIn field \"name\": Expected type \"String\", found $term.")
     end
   end
 
@@ -131,7 +131,7 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
     """
 
     test "menuItems field returns items descending using variables" do
-      variables = %{order: "ASC"}
+      variables = %{order: "DESC"}
 
       conn =
         build_conn()
@@ -140,9 +140,59 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
       assert(
         %{
           "data" => %{
-            "menuItems" => [%{"name" => "Bánh mì"} | _]
+            "menuItems" => [%{"name" => "Water"} | _]
           }
         } = json_response(conn, 200)
+      )
+    end
+
+    test "menuItems field returns menuItems, filtering with a literal" do
+      query = """
+      {
+        menuItems(filter: { category: "Sandwiches", tag: "Vegetarian"}) {
+          name
+        }
+      }
+      """
+
+      conn =
+        build_conn()
+        |> get("/api", query: query)
+
+      assert(
+        %{
+          "data" => %{
+            "menuItems" => [
+              %{"name" => "Vada Pav"}
+            ]
+          }
+        } == json_response(conn, 200)
+      )
+    end
+
+    test "menuItems field returns menuItems, filtering with a variable" do
+      query = """
+      query ($filter: MenuItemFilter!) {
+        menuItems(filter: $filter) {
+          name
+        }
+      }
+      """
+
+      variables = %{filter: %{"tag" => "Vegetarian", "category" => "Sandwiches"}}
+
+      conn =
+        build_conn()
+        |> get("/api", query: query, variables: variables)
+
+      assert(
+        %{
+          "data" => %{
+            "menuItems" => [
+              %{"name" => "Vada Pav"}
+            ]
+          }
+        } == json_response(conn, 200)
       )
     end
   end

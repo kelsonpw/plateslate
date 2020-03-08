@@ -6,7 +6,7 @@ defmodule PlateslateWeb.Schema do
   query do
     @desc "The list of available Menu Items!"
     field :menu_items, list_of(:menu_item) do
-      arg(:matching, :string)
+      arg(:filter, :menu_item_filter)
       arg(:order, type: :sort_order, default_value: :asc)
       resolve(&Resolvers.Menu.menu_items/3)
     end
@@ -29,5 +29,23 @@ defmodule PlateslateWeb.Schema do
     field :price, :float
     @desc "The MenuItem's added_on date"
     field :added_on, :string
+  end
+
+  @desc "Filtering options for the menu item list"
+  input_object :menu_item_filter do
+    @desc "Matching a name"
+    field :name, :string
+
+    @desc "Matching a category name"
+    field :category, :string
+
+    @desc "Matching a tag"
+    field :tag, :string
+
+    @desc "Price above a value"
+    field :priced_above, :float
+
+    @desc "Price below a value"
+    field :priced_below, :float
   end
 end
