@@ -5,10 +5,26 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
     Plateslate.Seeds.run()
   end
 
+  @menu_items_query """
+  {
+    menuItems {
+      name
+    }
+  }
+  """
+
+  @search_menu_items_query """
+  query ($term: String) {
+    menuItems(matching: $term) {
+      name
+    }
+  }
+  """
+
   test "menuItems field returns menu items" do
     conn =
       build_conn()
-      |> get("/api", query: menu_items_query())
+      |> get("/api", query: @menu_items_query)
 
     expected_response = %{
       "data" => %{
@@ -35,9 +51,11 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
   end
 
   test "menuItems field returns menu items filtered by name" do
+    variables = %{"term" => "Pav"}
+
     conn =
       build_conn()
-      |> get("/api", query: menu_items_query(%{matching: "\"Pav\""}))
+      |> get("/api", query: @search_menu_items_query, variables: variables)
 
     expected_response = %{
       "data" => %{
@@ -51,9 +69,11 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
   end
 
   test "menuItems field returns empty menu items if filter name does not match" do
+    variables = %{"term" => "zzzxxX"}
+
     conn =
       build_conn()
-      |> get("/api", query: menu_items_query(%{matching: "\"ZZZxxx\""}))
+      |> get("/api", query: @search_menu_items_query, variables: variables)
 
     expected_response = %{
       "data" => %{
@@ -65,31 +85,13 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
   end
 
   test "menuItems field returns errors when using invalid search value" do
+    variables = %{"term" => 123}
+
     conn =
       build_conn()
-      |> get("/api", query: menu_items_query(%{matching: 123}))
+      |> get("/api", query: @search_menu_items_query, variables: variables)
 
     assert(%{"errors" => [%{"message" => message}]} = json_response(conn, 200))
-    assert(message == "Argument \"matching\" has invalid value 123.")
-  end
-
-  defp menu_items_query do
-    """
-    {
-      menuItems {
-        name
-      }
-    }
-    """
-  end
-
-  defp menu_items_query(%{matching: name}) do
-    """
-    {
-      menuItems(matching: #{name}) {
-        name
-      }
-    }
-    """
+    assert(message == "Argument \"matching\" has invalid value $term.")
   end
 end
