@@ -11,7 +11,7 @@ defmodule PlateslateWeb.Schema.MenuTypes do
     @desc "The MenuItem's optional description"
     field :description, :string
     @desc "The MenuItem's price"
-    field :price, :float
+    field :price, :decimal
     @desc "The MenuItem's added_on date"
     field :added_on, :date
   end
@@ -38,6 +38,14 @@ defmodule PlateslateWeb.Schema.MenuTypes do
 
     @desc "Added to the menu after this date"
     field :added_after, :date
+  end
+
+  @desc "Menu item input for item creation"
+  input_object :menu_item_input do
+    field :name, non_null(:string)
+    field :description, :string
+    field :price, non_null(:decimal)
+    field :category_id, non_null(:id)
   end
 
   interface :search_result do

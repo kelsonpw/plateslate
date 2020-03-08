@@ -122,10 +122,9 @@ defmodule Plateslate.Menu do
 
   alias Plateslate.Menu.Item
 
-  @search [Item, Category]
   def search(term) do
     pattern = "%#{term}%"
-    Enum.flat_map(@search, &search_ecto(&1, pattern))
+    Enum.flat_map([Item, Category], &search_ecto(&1, pattern))
   end
 
   def search_ecto(ecto_schema, pattern) do
