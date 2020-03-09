@@ -19,6 +19,7 @@ defmodule PlateslateWeb.Schema.MenuTypes do
     field :price, :decimal
     @desc "The MenuItem's added_on date"
     field :added_on, :date
+    field :category_id, :id
 
     @desc "The MenuItem's category"
     field :category, :category
@@ -53,7 +54,8 @@ defmodule PlateslateWeb.Schema.MenuTypes do
     field :name, non_null(:string)
     field :description, :string
     field :price, non_null(:decimal)
-    field :category_id, non_null(:id)
+    field :category_id, :id
+    field :category_name, :string
   end
 
   interface :search_result do

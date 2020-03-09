@@ -144,9 +144,11 @@ defmodule Plateslate.Menu do
   """
 
   def list_items(%{matching: name}) when is_binary(name) do
-    Item
-    |> where([m], ilike(m.name, ^"%#{name}"))
-    |> Repo.all(preload: [:category])
+    query =
+      Item
+      |> where([m], ilike(m.name, ^"%#{name}"))
+
+    Repo.all(from(q in query, preload: [:category]))
   end
 
   def list_items(filters) do
@@ -209,7 +211,10 @@ defmodule Plateslate.Menu do
       ** (Ecto.NoResultsError)
 
   """
-  def get_item!(id), do: Repo.get!(Item, id)
+  def get_item!(id) do
+    Repo.get!(Item, id)
+    |> Repo.preload(:category)
+  end
 
   @doc """
   Creates a item.
@@ -223,10 +228,28 @@ defmodule Plateslate.Menu do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_item(attrs \\ %{}) do
-    %Item{}
-    |> Item.changeset(attrs)
-    |> Repo.insert()
+  def create_item(%{category_name: category_name} = attrs) do
+    rest_attrs =
+      attrs
+      |> Map.delete(:category_name)
+      |> Map.put(:category, %{name: category_name})
+
+    create_item(rest_attrs)
+  end
+
+  def create_item(attrs) do
+    result =
+      %Item{}
+      |> Item.changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, item} ->
+        {:ok, Repo.preload(item, :category)}
+
+      {:error, _} ->
+        result
+    end
   end
 
   @doc """

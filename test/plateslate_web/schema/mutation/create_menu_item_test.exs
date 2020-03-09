@@ -83,4 +83,54 @@ defmodule PlateslateWeb.Schema.Mutation.CreateMenuTest do
       }
     )
   end
+
+  test "createMenuItem field creates an item with a category" do
+    query = """
+    mutation ($menuItem: MenuItemInput!) {
+      createMenuItem(input: $menuItem) {
+        errors {
+          key
+          message
+        }
+        menuItem {
+          name
+          description
+          price
+          category {
+            name
+          }
+        }
+      }
+    }
+    """
+
+    menu_item = %{
+      "name" => "Skittles",
+      "description" => "A yummy fruity candy",
+      "price" => "1.75",
+      "category_name" => "Candy"
+    }
+
+    conn =
+      build_conn()
+      |> post("/api", query: query, variables: %{"menuItem" => menu_item})
+
+    assert(
+      json_response(conn, 200) == %{
+        "data" => %{
+          "createMenuItem" => %{
+            "errors" => nil,
+            "menuItem" => %{
+              "name" => menu_item["name"],
+              "description" => menu_item["description"],
+              "price" => menu_item["price"],
+              "category" => %{
+                "name" => "Candy"
+              }
+            }
+          }
+        }
+      }
+    )
+  end
 end
