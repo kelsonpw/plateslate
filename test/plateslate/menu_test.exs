@@ -92,6 +92,7 @@ defmodule Plateslate.MenuTest do
 
     test "list_items/1 returns all items" do
       item = item_fixture()
+      item = Plateslate.Repo.preload(item, :category)
       assert Menu.list_items(%{}) == [item]
     end
 
@@ -120,7 +121,7 @@ defmodule Plateslate.MenuTest do
 
     test "update_item/2 with valid data updates the item" do
       item = item_fixture()
-      assert {:ok, %Item{} = item} = Menu.update_item(item, @update_attrs)
+      assert {:ok, %Item{} = item} = Menu.update_item(item.id, @update_attrs)
       assert item.added_on == ~D[2011-05-18]
       assert item.description == "some updated description"
       assert item.name == "some updated name"
@@ -129,7 +130,7 @@ defmodule Plateslate.MenuTest do
 
     test "update_item/2 with invalid data returns error changeset" do
       item = item_fixture()
-      assert {:error, %Ecto.Changeset{}} = Menu.update_item(item, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Menu.update_item(item.id, @invalid_attrs)
       assert item == Menu.get_item!(item.id)
     end
 

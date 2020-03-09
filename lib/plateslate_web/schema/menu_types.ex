@@ -19,6 +19,9 @@ defmodule PlateslateWeb.Schema.MenuTypes do
     field :price, :decimal
     @desc "The MenuItem's added_on date"
     field :added_on, :date
+
+    @desc "The MenuItem's category"
+    field :category, :category
   end
 
   @desc "Filtering options for the menu item list"

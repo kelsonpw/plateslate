@@ -146,12 +146,14 @@ defmodule Plateslate.Menu do
   def list_items(%{matching: name}) when is_binary(name) do
     Item
     |> where([m], ilike(m.name, ^"%#{name}"))
-    |> Repo.all()
+    |> Repo.all(preload: [:category])
   end
 
   def list_items(filters) do
+    init_query = from(q in Item, preload: [:category])
+
     filters
-    |> Enum.reduce(Item, fn
+    |> Enum.reduce(init_query, fn
       {_, nil}, query ->
         query
 
