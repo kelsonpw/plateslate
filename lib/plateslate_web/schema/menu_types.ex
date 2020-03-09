@@ -1,6 +1,11 @@
 defmodule PlateslateWeb.Schema.MenuTypes do
   use Absinthe.Schema.Notation
 
+  object :menu_item_result do
+    field :menu_item, :menu_item
+    field :errors, list_of(:input_error)
+  end
+
   @desc "A single available MenuItem"
   object :menu_item do
     interfaces([:search_result])
