@@ -281,5 +281,41 @@ defmodule PlateslateWeb.Schema.Query.MenuItemsTest do
         } == json_response(conn, 200)
       )
     end
+
+    test "menuItems filtered by custom decimal scalar type" do
+      query = """
+      query($filter: MenuItemFilter!) {
+        menuItems(filter: $filter) {
+          name
+        }
+      }
+      """
+
+      variables = %{filter: %{"pricedBelow" => "0.99"}}
+      sides = Plateslate.Repo.get_by!(Plateslate.Menu.Category, name: "Sides")
+
+      %Plateslate.Menu.Item{
+        name: "Cheez Whiz",
+        added_on: ~D[2017-01-01],
+        price: 0.98,
+        category: sides
+      }
+      |> Plateslate.Repo.insert!()
+
+      conn =
+        build_conn()
+        |> get("/api", query: query, variables: variables)
+
+      assert(
+        %{
+          "data" => %{
+            "menuItems" => [
+              %{"name" => "Cheez Whiz"},
+              %{"name" => "Water"}
+            ]
+          }
+        } == json_response(conn, 200)
+      )
+    end
   end
 end

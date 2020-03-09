@@ -33,10 +33,10 @@ defmodule PlateslateWeb.Schema.MenuTypes do
     field :tag, :string
 
     @desc "Price above a value"
-    field :priced_above, :float
+    field :priced_above, :decimal
 
     @desc "Price below a value"
-    field :priced_below, :float
+    field :priced_below, :decimal
 
     @desc "Added to the menu before this date"
     field :added_before, :date
