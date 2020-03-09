@@ -239,8 +239,9 @@ defmodule Plateslate.Menu do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_item(%Item{} = item, attrs) do
-    item
+  def update_item(id, attrs) do
+    Item
+    |> Repo.get(id)
     |> Item.changeset(attrs)
     |> Repo.update()
   end
