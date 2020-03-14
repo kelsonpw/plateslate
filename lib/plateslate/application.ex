@@ -11,13 +11,11 @@ defmodule Plateslate.Application do
       # Start the Ecto repository
       Plateslate.Repo,
       # Start the endpoint when the application starts
-      PlateslateWeb.Endpoint
-      # Starts a worker by calling: Plateslate.Worker.start_link(arg)
-      # {Plateslate.Worker, arg},
+      PlateslateWeb.Endpoint,
+      # Start the absinthe subscription
+      {Absinthe.Subscription, PlateslateWeb.Endpoint}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Plateslate.Supervisor]
     Supervisor.start_link(children, opts)
   end
