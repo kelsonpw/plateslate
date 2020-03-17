@@ -1,10 +1,11 @@
 defmodule PlateslateWeb.Schema do
   use Absinthe.Schema
   alias PlateslateWeb.Resolvers
-  alias __MODULE__.{MenuTypes, CategoryTypes}
+  alias __MODULE__.{MenuTypes, CategoryTypes, OrderingTypes}
 
   import_types(MenuTypes)
   import_types(CategoryTypes)
+  import_types(OrderingTypes)
 
   query do
     @desc "The list of available Menu Items!"
@@ -36,6 +37,11 @@ defmodule PlateslateWeb.Schema do
       arg(:id, non_null(:id))
       arg(:input, non_null(:menu_item_input))
       resolve(&Resolvers.Menu.update_item/3)
+    end
+
+    field :place_order, :order_result do
+      arg(:input, non_null(:place_order_input))
+      resolve(&Resolvers.Ordering.place_order/3)
     end
   end
 

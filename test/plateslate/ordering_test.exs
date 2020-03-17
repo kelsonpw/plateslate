@@ -31,6 +31,8 @@ defmodule Plateslate.OrderingTest do
           %{name: "French Fries", quantity: 2, price: fries.price}
         ]
       )
+
+      assert(order.state == "created")
     end
   end
 end
