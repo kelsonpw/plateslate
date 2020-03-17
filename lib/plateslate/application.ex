@@ -13,7 +13,7 @@ defmodule Plateslate.Application do
       # Start the endpoint when the application starts
       PlateslateWeb.Endpoint,
       # Start the absinthe subscription
-      {Absinthe.Subscription, PlateslateWeb.Endpoint}
+      {Absinthe.Subscription, [PlateslateWeb.Endpoint]}
     ]
 
     opts = [strategy: :one_for_one, name: Plateslate.Supervisor]
