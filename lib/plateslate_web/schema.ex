@@ -60,9 +60,24 @@ defmodule PlateslateWeb.Schema do
       config(fn _args, _info ->
         {:ok, topic: "*"}
       end)
+    end
 
-      resolve(fn root, _, _ ->
-        {:ok, root}
+    field :update_order, :order do
+      arg(:id, non_null(:id))
+
+      config(fn args, _info ->
+        {:ok, topic: args.id}
+      end)
+
+      trigger([:ready_order, :complete_order],
+        topic: fn
+          %{order: order} -> [order.id]
+          _ -> []
+        end
+      )
+
+      resolve(fn %{order: order}, _, _ ->
+        {:ok, order}
       end)
     end
   end
