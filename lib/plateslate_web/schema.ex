@@ -60,6 +60,17 @@ defmodule PlateslateWeb.Schema do
       config(fn _args, _info ->
         {:ok, topic: "*"}
       end)
+
+      trigger(:place_order,
+        topic: fn
+          %{order: order} -> ["*"]
+          _ -> []
+        end
+      )
+
+      resolve(fn %{order: order}, _, _ ->
+        {:ok, order}
+      end)
     end
 
     field :update_order, :order do
