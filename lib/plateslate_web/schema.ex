@@ -43,6 +43,16 @@ defmodule PlateslateWeb.Schema do
       arg(:input, non_null(:place_order_input))
       resolve(&Resolvers.Ordering.place_order/3)
     end
+
+    field :ready_order, :order_result do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.Ordering.ready_order/3)
+    end
+
+    field :complete_order, :order_result do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.Ordering.complete_order/3)
+    end
   end
 
   subscription do
